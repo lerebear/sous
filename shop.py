@@ -53,21 +53,21 @@ class Ingredient:
 
 
 class ShoppingList:
-    FORMAT_DEFAULT = "default"
     FORMAT_COMPACT = "compact"
+    FORMAT_EXPANDED = "expanded"
 
     def __init__(self, recipe_file_paths: list[str]):
         self.recipe_file_paths = recipe_file_paths
         self.items = self._build_items()
 
-    def format(self, format: str = FORMAT_DEFAULT):
+    def format(self, format: str = FORMAT_COMPACT):
         result = []
 
         if format == self.FORMAT_COMPACT:
             for item in self.items:
                 uses = f"({len(item.quantities)})" if len(item.quantities) > 1 else ""
                 result.append(f"{item.name} {uses}".strip())
-        elif format == self.DEFAULT:
+        elif format == self.FORMAT_EXPANDED:
             for item in self.items:
                 quantities = (
                     f"({', '.join(item.quantities)})" if item.quantities else ""
@@ -195,25 +195,51 @@ class Todoist:
 
 
 @click.command()
-@click.argument("project-id")
 @click.argument("recipes", nargs=-1)
+@click.option(
+    "--format",
+    type=click.Choice(
+        (ShoppingList.FORMAT_EXPANDED, ShoppingList.FORMAT_COMPACT),
+        case_sensitive=False,
+    ),
+    default=ShoppingList.FORMAT_COMPACT,
+    help="Format for items in the shopping list"
+)
+@click.option("--project-id", help="Identifier for a Todoist Project")
 @click.option("--token-file", help="Path to a file containing a Todoist API token")
-def shop(project_id, recipes, token_file):
-    """Export a shopping list for the given list of recipes to Todoist"""
+@click.option(
+    "--export",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Export the shopping list to Todoist",
+)
+def shop(recipes, format, project_id, token_file, export):
+    """Build a shopping list for the given list of recipes"""
+
+    if export and not project_id:
+        project_id = click.prompt("Please enter a Todoist Project ID")
+
     token = None
 
-    if token_file:
+    if export and token_file:
         with open(token_file) as fh:
             token = fh.read().strip()
 
-    if token is None:
+    if export and token is None:
         token = click.prompt("Please enter a Todoist API token", hide_input=True)
 
     click.echo(f"Building shopping list for {_pluralize('recipe', len(recipes))}")
     shopping_list = ShoppingList(recipes)
 
-    client = Todoist(token)
-    client.export(shopping_list, project_id)
+    if export:
+        client = Todoist(token)
+        client.export(shopping_list, project_id, format)
+    else:
+        print()
+        for item in shopping_list.format(format):
+            print(item)
+        print()
 
     click.echo("Happy shopping! 🛍️")
 
