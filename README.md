@@ -4,7 +4,7 @@ This is a tool that I've built to support my personal cooking workflow. It is in
 
 ## .sous file format
 
-These tools are built around the `.sous` file format, which defines a lightweight markup format for writing recipes.
+This tool is built around the `.sous` file format, which defines a lightweight markup format for writing recipes.
 
 At present, the format is designed to serve two purposes:
 
