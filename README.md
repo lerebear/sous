@@ -29,7 +29,7 @@ sous-version: 0
 
 Pre-heat oven to 415 F.
 
-Place trimmed [broccoli][] in a large bowl and season with [garlic][], [red pepper flakes][], [kosher salt]{} and [freshly ground black pepper][black peppercorns]{}. Toss with [olive oil][] and mix until ingredients are well combined.
+Place trimmed [broccoli][] in a large bowl and season with [garlic][], [red pepper flakes][], [kosher salt]{} and freshly ground [black pepper]{}. Toss with [olive oil][] and mix until ingredients are well combined.
 
 Transfer broccoli to a parchment-lined baking sheet and roast for 20 minutes, flipping broccoli halfway through to achieve an even char.
 
