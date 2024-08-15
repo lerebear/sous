@@ -41,7 +41,7 @@ The snippet above demonstrates all of the supported language features:
 - YAML frontmatter which defines recipe metadata (e.g. `author: Lérè Williams`)
 - Recipe title (`# Roasted broccoli`)
 - Block ingredient definitions (e.g. `[garlic]: 3 large garlic cloves, minced {3 cloves}`)
-- Inline ingredient definitions (e.g. `[freshly ground black pepper][black peppercorns]{}`)
+- Inline ingredient definitions (e.g. `[black pepper]{}`)
 - Ingredient references (e.g. `[broccoli][]`)
 
 The format may be extended to support other uses in the future.
