@@ -8,7 +8,7 @@ These tools are built around the `.sous` file format, which defines a lightweigh
 
 At present, the format is designed to serve two purposes:
 
-- Provide a human-readable and vendor-agnostic serialization for recipes
+- Provide a human-readable and vendor-agnostic serialization format for recipes
 - Make it easy to automate the creation of a shopping list from a given list of recipes
 
 Here's an example:
