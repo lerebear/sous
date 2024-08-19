@@ -1,46 +1,50 @@
 from collections import defaultdict
+from functools import cached_property
 import re
 
 import click
 
 from todoist_api_python.api import TodoistAPI
 
-EXPRESSIONS = {
-    "id": r"\[(?P<id>[^]]+)\]",  # This is synonymous with link
-    "link": r"\[(?P<link>[^]]+)\]",  # This is synonymous with id
-    "ref": r"\[(?P<ref>[^]]+)\]",
-    "description": r"(?P<description>[^{]*)",
-    "optional": r"(?P<optional>\?)?",
-    "quantity": r"\{(?P<quantity>[^}]*)\}",
-}
-
-CANONICAL_INGREDIENT_RE = re.compile(
-    r"^{id}(:(\s+{description})?(\s+{quantity}{optional})?)?$".format(**EXPRESSIONS)
+HEADER_RE = re.compile("^(?P<level>#+)\s+(?P<name>.+)$")
+ATTRIBUTE_RE = re.compile(r"^@(?P<name>[\w-]+)\s+(?P<value>.+)$")
+COMMENT_RE = re.compile(r"^%\s+(?P<comment>.+)$")
+BLOCK_INGREDIENT_DEFINITION_RE = re.compile(
+    r"^{(?P<quantity>[^}]*)}(?P<descriptors>[^[]*)\[(?P<id>[^,\]]+)\](?P<preparation>.*)$"
 )
-INLINE_INGREDIENT_RE = re.compile(r"{link}{quantity}{optional}".format(**EXPRESSIONS))
-INGREDIENT_REFERENCE_RE = re.compile(r"^{link}{ref}{quantity}?$".format(**EXPRESSIONS))
+INLINE_INGREDIENT_DEFINITION_RE = re.compile(
+    r"{(?P<quantity>[^}]*)}\[(?P<id>[^,\]]+)\]"
+)
+INGREDIENT_REFERENCE_RE = re.compile(r"\[(?P<ref>[^,\]]+)\](\((?P<id>[^)]+)\))?")
+
+
+def _join_available(separator, collection):
+    return separator.join([e for e in collection if e])
 
 
 class Ingredient:
     def __init__(
         self,
         id: str,
-        description: str = None,
         quantity: str = None,
-        optional: bool = False,
+        descriptors: str = None,
+        preparation: str = None,
     ):
         self.id = id
-        self.description = description
         self.quantity = quantity
-        self.optional = optional
+        self.descriptors = descriptors
+        self.preparation = preparation
 
     def __str__(self):
-        components = [
-            self.quantity,
-            self.description or self.id,
-            "(optional)" if self.optional else None,
-        ]
-        return " ".join([s for s in components if s])
+        return _join_available(
+            " ",
+            [
+                self.quantity,
+                self.descriptors,
+                self.id,
+                self.preparation,
+            ],
+        )
 
     def __hash__(self):
         return hash(self.id)
@@ -50,6 +54,29 @@ class Ingredient:
 
     def __ne__(self, other):
         return self.id != other.id
+
+
+class Header:
+    def __init__(self, level: int, name: str):
+        self.level = level
+        self.name = name
+
+
+class Attribute:
+    def __init__(self, name: str, value: str):
+        self.name = name
+        self.value = value
+
+
+class Comment:
+    def __init__(self, text: str):
+        self.text = text
+
+
+class Prose:
+    def __init__(self, text: str, ingredients: list[Ingredient]):
+        self.text = text
+        self.ingredients = ingredients
 
 
 class ShoppingList:
@@ -127,7 +154,7 @@ class Document:
                 contents = line.strip()
 
                 if contents:
-                    paragraph.append(contents)
+                    paragraph.append(self._parse_line(contents))
                 elif len(paragraph):
                     self.paragraphs.append(paragraph)
                     paragraph = []
@@ -135,39 +162,73 @@ class Document:
             if len(paragraph):
                 self.paragraphs.append(paragraph)
 
+    def summarize(self):
+        result = []
+
+        for paragraph in self.paragraphs:
+            for line in paragraph:
+                summary = type(line).__name__
+
+                if summary == "Prose":
+                    summary = f"{summary} ({len(line.ingredients)})"
+
+                result.append(summary)
+
+            result.append("")
+
+        return "\n".join(result)
+
+    def _parse_line(self, line):
+        header = HEADER_RE.match(line)
+        if header:
+            return Header(len(header.group("level")), header.group("name"))
+
+        attribute = ATTRIBUTE_RE.match(line)
+        if attribute:
+            return Attribute(attribute.group("name"), attribute.group("value"))
+
+        comment = COMMENT_RE.match(line)
+        if comment:
+            return Comment(comment.group("comment"))
+
+        block_ingredient_def = BLOCK_INGREDIENT_DEFINITION_RE.match(line)
+        if block_ingredient_def:
+            return Ingredient(
+                id=block_ingredient_def.group("id"),
+                quantity=block_ingredient_def.group("quantity"),
+                descriptors=block_ingredient_def.group("descriptors"),
+                preparation=block_ingredient_def.group("preparation"),
+            )
+
+        inline_ingredients = []
+        for inline_ingredient_def in INLINE_INGREDIENT_DEFINITION_RE.finditer(line):
+            inline_ingredients.append(
+                Ingredient(
+                    id=inline_ingredient_def.group("id"),
+                    quantity=inline_ingredient_def.group("quantity"),
+                )
+            )
+
+        return Prose(line, inline_ingredients)
+
 
 class Recipe:
     def __init__(self, filepath: str):
         self.document = Document(filepath)
-        self.ingredients = []
 
-        for paragraph in Document(filepath).paragraphs:
-            for line in paragraph:
-                canonical = CANONICAL_INGREDIENT_RE.match(line)
-
-                if canonical:
-                    self.ingredients.append(
-                        Ingredient(
-                            id=canonical.group("id"),
-                            description=canonical.group("description"),
-                            quantity=canonical.group("quantity"),
-                            optional=(canonical.group("optional") is not None),
-                        )
-                    )
-                    continue
-
-                for inline in INLINE_INGREDIENT_RE.finditer(line):
-                    self.ingredients.append(
-                        Ingredient(
-                            id=inline.group("link"),
-                            quantity=inline.group("quantity"),
-                            optional=(inline.group("optional") is not None),
-                        )
-                    )
-                    continue
-
+    @cached_property
     def ingredients(self):
-        pass
+        ingredients = []
+
+        for paragraph in self.document.paragraphs:
+            for line in paragraph:
+                if isinstance(line, Ingredient):
+                    ingredients.append(line)
+
+                if isinstance(line, Prose):
+                    ingredients.extend(line.ingredients)
+
+        return ingredients
 
 
 class Todoist:
@@ -203,7 +264,7 @@ class Todoist:
         case_sensitive=False,
     ),
     default=ShoppingList.FORMAT_COMPACT,
-    help="Format for items in the shopping list"
+    help="Format for items in the shopping list",
 )
 @click.option("--project-id", help="Identifier for a Todoist Project")
 @click.option("--token-file", help="Path to a file containing a Todoist API token")
