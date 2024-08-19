@@ -19,8 +19,8 @@ Here's an example:
 @author Lérè Williams
 @syntax 1
 
-{2 crowns}[broccoli], washed and trimmed
-{3 cloves}[garlic], minced
+{2} large [broccoli crowns], washed and trimmed
+{3} large [garlic cloves], minced
 {} extra virgin [olive oil]
 {}[red pepper flakes]
 {1}[lemon] juice
@@ -39,7 +39,7 @@ The snippet above demonstrates all of the supported language features:
 
 - Recipe title (`# Roasted broccoli`)
 - Metadata attributes (e.g. `@author Lérè Williams`)
-- Block ingredient definitions (e.g. `{3 cloves}[garlic], minced`)
+- Block ingredient definitions (e.g. `{3} large [garlic cloves], minced`)
 - Inline ingredient definitions (e.g. `{}[black pepper]`)
 - Inline ingredient references (e.g. `[broccoli]`)
 - Comments (e.g. `% Override syntax for ingredient display should be implemented next`)
