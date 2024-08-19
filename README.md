@@ -23,8 +23,8 @@ Here's an example:
 {3} large [garlic cloves], minced
 {} extra virgin [olive oil]
 {}[red pepper flakes]
-{1}[lemon] juice
-% Override syntax for ingredient display should be implemented next
+{1/2}[lemon], for juicing
+% Syntax for optional ingredients coming soon!
 
 Pre-heat oven to 415 F.
 
@@ -32,7 +32,7 @@ Place trimmed [broccoli] in a large bowl and season with [garlic], [red pepper f
 
 Transfer broccoli to a parchment-lined baking sheet and roast for 20 minutes, flipping broccoli halfway through to achieve an even char.
 
-Remove baking sheet from oven. Squeeze juice of half a [lemon] evenly over the broccoli. Serve warm.
+Remove baking sheet from oven. Squeeze [lemon] juice evenly over the broccoli. Serve warm.
 ```
 
 The snippet above demonstrates all of the supported language features:
@@ -42,6 +42,6 @@ The snippet above demonstrates all of the supported language features:
 - Block ingredient definitions (e.g. `{3} large [garlic cloves], minced`)
 - Inline ingredient definitions (e.g. `{}[black pepper]`)
 - Inline ingredient references (e.g. `[broccoli]`)
-- Comments (e.g. `% Override syntax for ingredient display should be implemented next`)
+- Comments (e.g. `% Syntax for optional ingredients coming soon!`)
 
 The format may be extended to support other uses in the future.
