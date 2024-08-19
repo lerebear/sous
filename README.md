@@ -41,6 +41,7 @@ The snippet above demonstrates all of the supported language features:
 - Metadata attributes (e.g. `@author Lérè Williams`)
 - Block ingredient definitions (e.g. `{3 cloves}[garlic], minced`)
 - Inline ingredient definitions (e.g. `{}[black pepper]`)
+- Inline ingredient references (e.g. `[broccoli]`)
 - Comments (e.g. `% Temperature may be dependent on oven`)
 
 The format may be extended to support other uses in the future.
