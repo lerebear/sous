@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import sys
 from ingredient_parser import parse_ingredient
 from recipe_scrapers import scrape_html
 import requests
@@ -179,11 +178,15 @@ def _convert_recipes():
 
 
 def _nyt_recipe_to_sous(url, output_json_file, output_sous_file):
-    return _recipe_to_sous(_download_nyt_recipe(url), output_json_file, output_sous_file)
+    return _recipe_to_sous(
+        _download_nyt_recipe(url), output_json_file, output_sous_file
+    )
 
 
 def _arbitrary_recipe_to_sous(url, output_json_file, output_sous_file):
-    return _recipe_to_sous(_download_arbitrary_recipe(url), output_json_file, output_sous_file)
+    return _recipe_to_sous(
+        _download_arbitrary_recipe(url), output_json_file, output_sous_file
+    )
 
 
 def _recipe_to_sous(recipe, output_json_file, output_sous_file):
