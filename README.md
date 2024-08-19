@@ -24,9 +24,9 @@ Here's an example:
 {} extra virgin [olive oil]
 {}[red pepper flakes]
 {1}[lemon] juice
+% Override syntax for ingredient display should be implemented next
 
 Pre-heat oven to 415 F.
-% Temperature may be dependent on oven
 
 Place trimmed [broccoli] in a large bowl and season with [garlic], [red pepper flakes], {}[kosher salt] and freshly ground {}[black pepper]. Toss with [olive oil] and mix until ingredients are well combined.
 
@@ -42,6 +42,6 @@ The snippet above demonstrates all of the supported language features:
 - Block ingredient definitions (e.g. `{3 cloves}[garlic], minced`)
 - Inline ingredient definitions (e.g. `{}[black pepper]`)
 - Inline ingredient references (e.g. `[broccoli]`)
-- Comments (e.g. `% Temperature may be dependent on oven`)
+- Comments (e.g. `% Override syntax for ingredient display should be implemented next`)
 
 The format may be extended to support other uses in the future.
