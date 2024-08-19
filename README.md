@@ -14,34 +14,33 @@ At present, the format is designed to serve two purposes:
 Here's an example:
 
 ```txt
----
-author: Lérè Williams
-sous-version: 0
----
-
 # Roasted broccoli
 
-[broccoli]: 2 large crowns of broccoli, washed and trimmed {2 crowns}
-[garlic]: 3 large garlic cloves, minced {3 cloves}
-[olive oil]: extra virgin olive oil
-[red pepper flakes]
-[lemon] lemon juice {1}
+@author Lérè Williams
+@syntax 1
+
+{2 crowns}[broccoli], washed and trimmed
+{3 cloves}[garlic], minced
+{} extra virgin [olive oil]
+{}[red pepper flakes]
+{1}[lemon] juice
 
 Pre-heat oven to 415 F.
+% Temperature may be dependent on oven
 
-Place trimmed [broccoli][] in a large bowl and season with [garlic][], [red pepper flakes][], [kosher salt]{} and freshly ground [black pepper]{}. Toss with [olive oil][] and mix until ingredients are well combined.
+Place trimmed [broccoli] in a large bowl and season with [garlic], [red pepper flakes], {}[kosher salt] and freshly ground {}[black pepper]. Toss with [olive oil] and mix until ingredients are well combined.
 
 Transfer broccoli to a parchment-lined baking sheet and roast for 20 minutes, flipping broccoli halfway through to achieve an even char.
 
-Remove baking sheet from oven. Squeeze juice of [half a lemon][lemon] evenly over the broccoli. Serve warm.
+Remove baking sheet from oven. Squeeze juice of half a [lemon] evenly over the broccoli. Serve warm.
 ```
 
 The snippet above demonstrates all of the supported language features:
 
-- YAML frontmatter which defines recipe metadata (e.g. `author: Lérè Williams`)
 - Recipe title (`# Roasted broccoli`)
-- Block ingredient definitions (e.g. `[garlic]: 3 large garlic cloves, minced {3 cloves}`)
-- Inline ingredient definitions (e.g. `[black pepper]{}`)
-- Ingredient references (e.g. `[broccoli][]`)
+- Metadata attributes (e.g. `@author Lérè Williams`)
+- Block ingredient definitions (e.g. `{3 cloves}[garlic], minced`)
+- Inline ingredient definitions (e.g. `{}[black pepper]`)
+- Comments (e.g. `% Temperature may be dependent on oven`)
 
 The format may be extended to support other uses in the future.
