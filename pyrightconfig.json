@@ -1,0 +1,4 @@
+{
+    "include": ["cli.py", "sous/**/*"],
+    "strict": ["cli.py", "sous/**/*"]
+}
