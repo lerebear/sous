@@ -9,9 +9,10 @@ class ShoppingList:
     FORMAT_COMPACT = "compact"
     FORMAT_EXPANDED = "expanded"
 
-    def __init__(self, recipe_file_paths: list[str]):
+    def __init__(self, recipe_file_paths: list[str], exclusions: list[str]):
         self.recipe_file_paths = recipe_file_paths
-        self.items = self._build_items()
+        self.exclusions = exclusions
+        self.items = self._build_items(exclusions)
 
     def format(self, format: str = FORMAT_COMPACT) -> list[str]:
         result: list[str] = []
@@ -31,7 +32,7 @@ class ShoppingList:
 
         return sorted(result)
 
-    def _build_items(self):
+    def _build_items(self, exclusions: list[str]):
         recipes = [Recipe(filepath) for filepath in self.recipe_file_paths]
         ingredients = [
             ingredient for recipe in recipes for ingredient in recipe.ingredients
@@ -42,6 +43,11 @@ class ShoppingList:
             if ingredient.quantity:
                 quantities[ingredient].append(ingredient.quantity)
 
-        return set(
+        result = set(
             [Item(ingredient.id, quantities[ingredient]) for ingredient in ingredients]
         )
+
+        for ingredient_id in exclusions:
+            result.remove(Item(ingredient_id, []))
+
+        return result

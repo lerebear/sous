@@ -74,6 +74,7 @@ def archive(dump_directory_path: str, output_directory_path: str):
 
 @cli.command()
 @click.argument("recipes", nargs=-1)
+@click.option("--exclude", "-x", multiple=True)
 @click.option(
     "--format",
     type=click.Choice(
@@ -93,7 +94,12 @@ def archive(dump_directory_path: str, output_directory_path: str):
     help="Export the shopping list to Todoist",
 )
 def shop(
-    recipes: list[str], format: str, project_id: str, token_file: str, export: bool
+    recipes: list[str],
+    exclude: list[str],
+    format: str,
+    project_id: str,
+    token_file: str,
+    export: bool,
 ):
     """Build a shopping list for the given list of recipes"""
 
@@ -114,7 +120,7 @@ def shop(
         return
 
     click.echo(f"Building shopping list for {Text.pluralize('recipe', len(recipes))}")
-    shopping_list = ShoppingList(recipes)
+    shopping_list = ShoppingList(recipes, exclude)
 
     if export:
         client = Todoist(cast(str, token))
