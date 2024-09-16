@@ -74,7 +74,12 @@ def archive(dump_directory_path: str, output_directory_path: str):
 
 @cli.command()
 @click.argument("recipes", nargs=-1)
-@click.option("--exclude", "-x", multiple=True)
+@click.option(
+    "--exclude",
+    "-x",
+    multiple=True,
+    help="Exclude this ingredient from the shopping list",
+)
 @click.option(
     "--format",
     type=click.Choice(
