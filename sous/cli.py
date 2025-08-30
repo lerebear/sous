@@ -10,13 +10,16 @@ from sous.shopping_list import ShoppingList
 from sous.todoist import Todoist
 from sous.utils import Text
 
+CONTEXT_SETTINGS: dict[str, list[str]] = dict(help_option_names=["-h", "--help"])
 
-@click.group()
+
+@click.group(context_settings=CONTEXT_SETTINGS)
 def cli() -> None:
+    """a kitchen assistant"""
     pass
 
 
-@cli.command(name="import")
+@cli.command(name="import", context_settings=CONTEXT_SETTINGS)
 @click.argument("source")
 @click.option("--json-file", help="Target for an intermediate recipe JSON file")
 @click.option("--sous-file", help="Target for a .sous file")
@@ -33,7 +36,7 @@ def import_recipe(
     print(scraped_recipe.to_sous(sous_file))
 
 
-@cli.command(name="dump")
+@cli.command(name="dump", context_settings=CONTEXT_SETTINGS)
 @click.argument("url-file")
 @click.argument("output-directory-path")
 def dump_recipes(url_file: str, output_directory_path: str) -> None:
@@ -56,7 +59,7 @@ def dump_recipes(url_file: str, output_directory_path: str) -> None:
                 time.sleep(int(downloader.delay))
 
 
-@cli.command()
+@cli.command(context_settings=CONTEXT_SETTINGS)
 @click.argument("dump_directory_path")
 @click.argument("output_directory_path")
 def archive(dump_directory_path: str, output_directory_path: str) -> None:
@@ -73,7 +76,7 @@ def archive(dump_directory_path: str, output_directory_path: str) -> None:
             scraped_recipe.to_sous(sous_file_path)
 
 
-@cli.command()
+@cli.command(context_settings=CONTEXT_SETTINGS)
 @click.argument("recipes", nargs=-1)
 @click.option(
     "--exclude",
