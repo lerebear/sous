@@ -1,0 +1,22 @@
+[project]
+name = "sous"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12.4"
+dependencies = [
+    "click>=8.2.1",
+    "ingredient-parser-nlp>=2.2.0",
+    "recipe-scrapers>=15.9.0",
+    "requests>=2.32.5",
+    "ruff>=0.12.11",
+    "todoist-api-python>=3.1.0",
+    "ty>=0.0.1a19",
+]
+
+[project.scripts]
+sous = "sous.cli:cli"
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
