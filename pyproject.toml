@@ -9,9 +9,7 @@ dependencies = [
     "ingredient-parser-nlp>=2.2.0",
     "recipe-scrapers>=15.9.0",
     "requests>=2.32.5",
-    "ruff>=0.12.11",
     "todoist-api-python>=3.1.0",
-    "ty>=0.0.1a19",
 ]
 
 [project.scripts]
@@ -23,3 +21,10 @@ build-backend = "flit_core.buildapi"
 
 [tool.ruff]
 lint.select = ["E", "F", "I", "B", "ANN"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "ruff>=0.12.11",
+    "ty>=0.0.1a19",
+]
