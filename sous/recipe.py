@@ -1,15 +1,16 @@
 from functools import cached_property
+
 from .document import Document
 from .ingredient import Ingredient
 from .prose import Prose
 
 
 class Recipe:
-    def __init__(self, filepath: str):
+    def __init__(self, filepath: str) -> None:
         self.document = Document(filepath)
 
     @cached_property
-    def ingredients(self):
+    def ingredients(self) -> list[Ingredient]:
         ingredients: list[Ingredient] = []
 
         for paragraph in self.document.paragraphs:

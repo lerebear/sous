@@ -1,10 +1,10 @@
 import re
 
 from .attribute import Attribute
-from .ingredient import Ingredient
-from .prose import Prose
 from .comment import Comment
 from .header import Header
+from .ingredient import Ingredient
+from .prose import Prose
 
 type Node = Header | Attribute | Comment | Ingredient | Prose
 
@@ -21,7 +21,7 @@ class Document:
     )
     INGREDIENT_REFERENCE_RE = re.compile(r"\[(?P<ref>[^,\]]+)\](\((?P<id>[^)]+)\))?")
 
-    def __init__(self, filepath: str):
+    def __init__(self, filepath: str) -> None:
         self.filepath = filepath
         self.paragraphs: list[list[Node]] = []
 
@@ -40,7 +40,7 @@ class Document:
             if len(paragraph):
                 self.paragraphs.append(paragraph)
 
-    def summarize(self):
+    def summarize(self) -> str:
         result: list[str] = []
 
         for paragraph in self.paragraphs:

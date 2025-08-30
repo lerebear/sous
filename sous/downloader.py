@@ -1,9 +1,10 @@
-from functools import cached_property
 import json
+import urllib.robotparser
+from functools import cached_property
 from pathlib import Path
 from typing import Any, Optional
+
 import requests
-import urllib.robotparser
 from recipe_scrapers import scrape_html
 
 from .scraped_recipe import ScrapedRecipe
@@ -16,7 +17,7 @@ DEFAULT_CRAWL_DELAY_SECONDS = 5
 class Downloader:
     def __init__(
         self, robots_parser: Optional[urllib.robotparser.RobotFileParser] = None
-    ):
+    ) -> None:
         self.robots_parser = robots_parser or self.__robots_file_parser(
             NYT_COOKING_ROBOTS_URL
         )
@@ -38,7 +39,7 @@ class Downloader:
     # TODO: Update this method to take a URL and produce the right delay for
     # that URL in particular.
     @cached_property
-    def delay(self):
+    def delay(self) -> int:
         requested_crawl_delay = self.robots_parser.crawl_delay("*")
         return requested_crawl_delay or DEFAULT_CRAWL_DELAY_SECONDS
 
@@ -53,7 +54,7 @@ class Downloader:
             requests.get(url).text, org_url=url, wild_mode=True
         ).to_json()  # type: ignore
 
-    def __robots_file_parser(self, root_url: str):
+    def __robots_file_parser(self, root_url: str) -> urllib.robotparser.RobotFileParser:
         robots = urllib.robotparser.RobotFileParser(root_url)
         robots.read()
         return robots

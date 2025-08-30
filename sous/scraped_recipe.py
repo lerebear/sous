@@ -1,21 +1,23 @@
+import json
 from functools import cached_property
 from typing import Any, Optional
+
 from ingredient_parser import parse_ingredient
+
 from .utils import Text
-import json
 
 SOUS_FORMAT_VERSION = 1
 
 
 class ScrapedRecipe:
-    def __init__(self, recipe_json: dict[Any, Any]):
+    def __init__(self, recipe_json: dict[Any, Any]) -> None:
         self.recipe_json = recipe_json
 
-    def save(self, output_path: str):
+    def save(self, output_path: str) -> None:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(self.recipe_json, f, ensure_ascii=False, indent=2)
 
-    def to_sous(self, output_file_path: Optional[str] = None):
+    def to_sous(self, output_file_path: Optional[str] = None) -> str:
         lines: list[str] = []
         lines.extend(self._title())
         lines.extend(self._frontmatter())
@@ -54,7 +56,7 @@ class ScrapedRecipe:
         return result
 
     @cached_property
-    def title(self):
+    def title(self) -> str:
         return self.recipe_json["title"]
 
     def _title(self) -> list[str]:
@@ -73,7 +75,7 @@ class ScrapedRecipe:
             parsed_ingredient = parse_ingredient(raw_ingredient)
 
             name = (
-                parsed_ingredient.name.text
+                parsed_ingredient.name[0].text
                 if parsed_ingredient.name
                 else f"{index + 1}"
             )
@@ -99,7 +101,7 @@ class ScrapedRecipe:
 
         return result
 
-    def _steps(self):
+    def _steps(self) -> list[str]:
         return [
             f"{instruction}\n" for instruction in self.recipe_json["instructions_list"]
         ]

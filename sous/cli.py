@@ -1,17 +1,18 @@
 import os
-from typing import Optional, cast
-import click
 import pathlib
 import time
+from typing import Optional, cast
+
+import click
 
 from sous.downloader import Downloader
-from sous.todoist import Todoist
 from sous.shopping_list import ShoppingList
+from sous.todoist import Todoist
 from sous.utils import Text
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
@@ -21,7 +22,7 @@ def cli():
 @click.option("--sous-file", help="Target for a .sous file")
 def import_recipe(
     source: str, json_file: Optional[str] = None, sous_file: Optional[str] = None
-):
+) -> None:
     """Create a .sous file for the given recipe"""
 
     scraped_recipe = Downloader().download(source)
@@ -35,7 +36,7 @@ def import_recipe(
 @cli.command(name="dump")
 @click.argument("url-file")
 @click.argument("output-directory-path")
-def dump_recipes(url_file: str, output_directory_path: str):
+def dump_recipes(url_file: str, output_directory_path: str) -> None:
     """Dump JSON files for all the recipes in the given file of URLs"""
 
     downloader = Downloader()
@@ -58,7 +59,7 @@ def dump_recipes(url_file: str, output_directory_path: str):
 @cli.command()
 @click.argument("dump_directory_path")
 @click.argument("output_directory_path")
-def archive(dump_directory_path: str, output_directory_path: str):
+def archive(dump_directory_path: str, output_directory_path: str) -> None:
     """Convert recipe JSON files to .sous files in bulk"""
 
     downloader = Downloader()
@@ -105,7 +106,7 @@ def shop(
     project_id: str,
     token_file: str,
     export: bool,
-):
+) -> None:
     """Build a shopping list for the given list of recipes"""
 
     if export and not project_id:
