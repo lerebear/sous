@@ -1,7 +1,6 @@
 import os
 import pathlib
 import time
-from typing import Optional
 
 import click
 
@@ -19,21 +18,35 @@ def cli() -> None:
     pass
 
 
+JSON_FILE_EXTENSION = ".json"
+
+
 @cli.command(name="import", context_settings=CONTEXT_SETTINGS)
 @click.argument("source")
-@click.option("--json-file", help="Target for an intermediate recipe JSON file")
-@click.option("--sous-file", help="Target for a .sous file")
-def import_recipe(
-    source: str, json_file: Optional[str] = None, sous_file: Optional[str] = None
-) -> None:
-    """Create a .sous file for the given recipe"""
+@click.argument("destination")
+@click.option(
+    "--cache-intermediate-json",
+    "-c",
+    is_flag=True,
+    default=False,
+    help="Whether or not to cache the intermediate JSON representation of the recipe.",
+)
+def import_recipe(source: str, destination: str, cache_intermediate_json: bool) -> None:
+    """
+    Create a .sous file from the recipe at the given source URL
+
+    SOURCE url of the recipe to import
+
+    DESTINATION path to the output file (including the .sous extension)
+    """
 
     scraped_recipe = Downloader().download(source)
 
-    if json_file:
-        scraped_recipe.save(json_file)
+    if cache_intermediate_json:
+        basename, extension = os.path.splitext(destination)
+        scraped_recipe.save(basename + JSON_FILE_EXTENSION)
 
-    print(scraped_recipe.to_sous(sous_file))
+    print(scraped_recipe.to_sous(destination))
 
 
 @cli.command(name="dump", context_settings=CONTEXT_SETTINGS)
