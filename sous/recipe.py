@@ -1,6 +1,6 @@
 from functools import cached_property
 
-from .document import Document
+from .document import Document, Header
 from .ingredient import Ingredient
 from .prose import Prose
 
@@ -8,6 +8,13 @@ from .prose import Prose
 class Recipe:
     def __init__(self, filepath: str) -> None:
         self.document = Document(filepath)
+
+    @property
+    def name(self) -> str | None:
+        for paragraph in self.document.paragraphs:
+            for line in paragraph:
+                if isinstance(line, Header):
+                    return line.name
 
     @cached_property
     def ingredients(self) -> list[Ingredient]:

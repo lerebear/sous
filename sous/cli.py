@@ -1,13 +1,13 @@
 import os
 import pathlib
 import time
-from typing import Optional, cast
+from typing import Optional
 
 import click
 
+from sous.cookbook import Cookbook
 from sous.downloader import Downloader
 from sous.shopping_list import ShoppingList
-from sous.todoist import Todoist
 from sous.utils import Text
 
 CONTEXT_SETTINGS: dict[str, list[str]] = dict(help_option_names=["-h", "--help"])
@@ -77,12 +77,21 @@ def archive(dump_directory_path: str, output_directory_path: str) -> None:
 
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
-@click.argument("recipes", nargs=-1)
 @click.option(
-    "--exclude",
-    "-x",
+    "--cookbook",
+    "-c",
+    "cookbook_paths",
+    default=[],
     multiple=True,
-    help="Exclude this ingredient from the shopping list",
+    help="Path to a directory containing .sous files",
+)
+@click.option(
+    "--recipe",
+    "-r",
+    "recipe_paths",
+    default=[],
+    multiple=True,
+    help="Path to a .sous file",
 )
 @click.option(
     "--format",
@@ -90,57 +99,17 @@ def archive(dump_directory_path: str, output_directory_path: str) -> None:
         (ShoppingList.FORMAT_EXPANDED, ShoppingList.FORMAT_COMPACT),
         case_sensitive=False,
     ),
-    default=ShoppingList.FORMAT_COMPACT,
+    default=ShoppingList.FORMAT_EXPANDED,
     help="Format for items in the shopping list",
 )
-@click.option("--project-id", help="Identifier for a Todoist Project")
-@click.option("--token-file", help="Path to a file containing a Todoist API token")
-@click.option(
-    "--export",
-    is_flag=True,
-    show_default=True,
-    default=False,
-    help="Export the shopping list to Todoist",
-)
-def shop(
-    recipes: list[str],
-    exclude: list[str],
-    format: str,
-    project_id: str,
-    token_file: str,
-    export: bool,
-) -> None:
-    """Build a shopping list for the given list of recipes"""
+def shop(cookbook_paths: tuple[str], recipe_paths: tuple[str], format: str) -> None:
+    """Build a shopping list from a collection of recipes"""
+    cookbook = Cookbook(cookbook_paths, recipe_paths)
+    shopping_list = ShoppingList.build(cookbook, format)
 
-    if export and not project_id:
-        project_id = click.prompt("Please enter a Todoist Project ID")
-
-    token: Optional[str] = None
-
-    if export and token_file:
-        with open(token_file) as fh:
-            token = fh.read().strip()
-
-    if export and token is None:
-        token = click.prompt("Please enter a Todoist API token", hide_input=True)
-
-    if export and token is None:
-        click.echo("You must provide a token for this operation")
-        return
-
-    click.echo(f"Building shopping list for {Text.pluralize('recipe', len(recipes))}")
-    shopping_list = ShoppingList(recipes, exclude)
-
-    if export:
-        client = Todoist(cast(str, token))
-        client.export(shopping_list, project_id, format)
-    else:
-        click.echo()
-        for item in shopping_list.format(format):
-            click.echo(item)
-        click.echo()
-
-    click.echo("Happy shopping! 🛍️")
+    if len(shopping_list.items):
+        click.echo(f"\n{str(shopping_list)}\n")
+        click.echo("Happy shopping! 🛍️")
 
 
 if __name__ == "__main__":

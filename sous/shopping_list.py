@@ -1,53 +1,90 @@
 from collections import defaultdict
+from typing import cast
 
-from .ingredient import Ingredient
-from .item import Item
-from .recipe import Recipe
+from simple_term_menu import TerminalMenu
+
+from sous.cookbook import Cookbook
+from sous.ingredient import Ingredient
+from sous.item import Item
+from sous.recipe import Recipe
 
 
 class ShoppingList:
     FORMAT_COMPACT = "compact"
     FORMAT_EXPANDED = "expanded"
+    FORMATS = [FORMAT_COMPACT, FORMAT_EXPANDED]
 
-    def __init__(self, recipe_file_paths: list[str], exclusions: list[str]) -> None:
-        self.recipe_file_paths = recipe_file_paths
-        self.exclusions = exclusions
-        self.items = self._build_items(exclusions)
+    @classmethod
+    def build(cls, cookbook: Cookbook, format: str) -> "ShoppingList":
+        selected_ingredients: list[Ingredient] = []
 
-    def format(self, format: str = FORMAT_COMPACT) -> list[str]:
-        result: list[str] = []
+        while True:
+            recipe = cls.__select_recipe(cookbook)
+            if recipe is None:
+                break
+            selected_ingredients.extend(cls.__select_ingredients(recipe))
 
-        if format == self.FORMAT_COMPACT:
-            for item in self.items:
-                uses = f"({len(item.quantities)})" if len(item.quantities) > 1 else ""
-                result.append(f"{item.name} {uses}".strip())
-        elif format == self.FORMAT_EXPANDED:
-            for item in self.items:
-                quantities = (
-                    f"({', '.join(item.quantities)})" if item.quantities else ""
-                )
-                result.append(f"{item.name} {quantities}".strip())
-        else:
-            raise ValueError(f"Invalid shopping list format: '{format}'")
+        return cls(selected_ingredients, format)
 
-        return sorted(result)
-
-    def _build_items(self, exclusions: list[str]) -> set[Item]:
-        recipes = [Recipe(filepath) for filepath in self.recipe_file_paths]
-        ingredients = [
-            ingredient for recipe in recipes for ingredient in recipe.ingredients
-        ]
+    def __init__(self, ingredients: list[Ingredient], format: str) -> None:
+        if format not in self.FORMATS:
+            raise ValueError(f"Invalid shopping list format: '{self.format}'")
 
         quantities: dict[Ingredient, list[str]] = defaultdict(list)
         for ingredient in ingredients:
             if ingredient.quantity:
                 quantities[ingredient].append(ingredient.quantity)
 
-        result = set(
+        self.items = set(
             [Item(ingredient.id, quantities[ingredient]) for ingredient in ingredients]
         )
+        self.format = format
 
-        for ingredient_id in exclusions:
-            result.remove(Item(ingredient_id, []))
+    def __str__(self) -> str:
+        return "\n".join(self._format())
 
-        return result
+    def _format(self) -> list[str]:
+        result: list[str] = []
+
+        if self.format == self.FORMAT_COMPACT:
+            for item in self.items:
+                uses = f"({len(item.quantities)})" if len(item.quantities) > 1 else ""
+                result.append(f"{item.name} {uses}".strip())
+        elif self.format == self.FORMAT_EXPANDED:
+            for item in self.items:
+                quantities = (
+                    f"({', '.join(item.quantities)})" if item.quantities else ""
+                )
+                result.append(f"{item.name} {quantities}".strip())
+
+        return sorted(result)
+
+    @classmethod
+    def __select_recipe(cls, cookbook: Cookbook) -> Recipe | None:
+        recipes_by_name: dict[str, Recipe] = {r.name: r for r in cookbook.recipes}
+        recipe_names: list[str] = list(recipes_by_name.keys())
+        recipe_selection_menu = TerminalMenu(
+            recipe_names, title="Please select a recipe:\n", show_search_hint=True
+        )
+        index: int | None = cast(int | None, recipe_selection_menu.show())
+        return recipes_by_name[recipe_names[index]] if index is not None else None
+
+    @classmethod
+    def __select_ingredients(cls, recipe: Recipe) -> list[Ingredient]:
+        ingredients_by_id: dict[str, Ingredient] = {
+            ingredient.id: ingredient for ingredient in recipe.ingredients
+        }
+        ingredient_ids: list[str] = list(ingredients_by_id.keys())
+        ingredient_selection_menu = TerminalMenu(
+            ingredient_ids,
+            title="Please select ingredients:\n",
+            multi_select=True,
+            multi_select_empty_ok=True,
+            multi_select_keys=" x",
+            show_multi_select_hint=True,
+        )
+        ingredient_id_indices = cast(tuple[int], ingredient_selection_menu.show())
+
+        return [
+            ingredients_by_id[ingredient_ids[index]] for index in ingredient_id_indices
+        ]
