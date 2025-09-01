@@ -7,7 +7,7 @@ from typing import Any, Optional
 import requests
 from recipe_scrapers import scrape_html
 
-from .scraped_recipe import ScrapedRecipe
+from sous.scraped_recipe import ScrapedRecipe
 
 NYT_COOKING_BASE_URL = "https://cooking.nytimes.com"
 NYT_COOKING_ROBOTS_URL = f"{NYT_COOKING_BASE_URL}/robots.txt"

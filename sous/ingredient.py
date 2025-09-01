@@ -1,6 +1,6 @@
 from typing import Any
 
-from .utils import Text
+from sous.utils import Text
 
 
 class Ingredient:

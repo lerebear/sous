@@ -1,10 +1,10 @@
 import re
 
-from .attribute import Attribute
-from .comment import Comment
-from .header import Header
-from .ingredient import Ingredient
-from .prose import Prose
+from sous.attribute import Attribute
+from sous.comment import Comment
+from sous.header import Header
+from sous.ingredient import Ingredient
+from sous.prose import Prose
 
 type Node = Header | Attribute | Comment | Ingredient | Prose
 

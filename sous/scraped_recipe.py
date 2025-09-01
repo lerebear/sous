@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 from ingredient_parser import parse_ingredient
 
-from .utils import Text
+from sous.utils import Text
 
 SOUS_FORMAT_VERSION = 1
 

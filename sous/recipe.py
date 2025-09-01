@@ -1,8 +1,8 @@
 from functools import cached_property
 
-from .document import Document, Header
-from .ingredient import Ingredient
-from .prose import Prose
+from sous.document import Document, Header
+from sous.ingredient import Ingredient
+from sous.prose import Prose
 
 
 class Recipe:

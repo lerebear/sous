@@ -1,4 +1,4 @@
-from .ingredient import Ingredient
+from sous.ingredient import Ingredient
 
 
 class Prose:
