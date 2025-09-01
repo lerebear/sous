@@ -20,7 +20,7 @@ Here's an example:
 @syntax 1
 
 {2} large [broccoli crowns], washed and trimmed
-{3} large [garlic cloves], minced
+{3 cloves} [garlic], minced
 {} extra virgin [olive oil]
 {}[red pepper flakes]
 {1/2}[lemon], for juicing
@@ -28,7 +28,7 @@ Here's an example:
 
 Pre-heat oven to 415 F.
 
-Place trimmed [broccoli] in a large bowl and season with [garlic], [red pepper flakes], {}[kosher salt] and freshly ground {}[black pepper]. Toss with [olive oil] and mix until ingredients are well combined.
+Place trimmed [broccoli crowns] in a large bowl and season with [garlic], [red pepper flakes], {}[Kosher salt] and freshly ground {}[black pepper]. Toss with [olive oil] and mix until ingredients are well combined.
 
 Transfer broccoli to a parchment-lined baking sheet and roast for 20 minutes, flipping broccoli halfway through to achieve an even char.
 
@@ -39,9 +39,9 @@ The snippet above demonstrates all of the supported language features:
 
 - Recipe title (`# Roasted broccoli`)
 - Metadata attributes (e.g. `@author Lérè Williams`)
-- Block ingredient definitions (e.g. `{3} large [garlic cloves], minced`)
+- Block ingredient definitions (e.g. `{2} large [broccoli crowns], washed and trimmed`)
 - Inline ingredient definitions (e.g. `{}[black pepper]`)
-- Inline ingredient references (e.g. `[broccoli]`)
+- Inline ingredient references (e.g. `[broccoli crowns]`)
 - Comments (e.g. `% Syntax for optional ingredients coming soon!`)
 
 The format may be extended to support other uses in the future.
