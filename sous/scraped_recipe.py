@@ -1,6 +1,6 @@
 import json
 from functools import cached_property
-from typing import Any, Optional
+from typing import Any
 
 from ingredient_parser import parse_ingredient
 
@@ -17,7 +17,7 @@ class ScrapedRecipe:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(self.recipe_json, f, ensure_ascii=False, indent=2)
 
-    def to_sous(self, output_file_path: Optional[str] = None) -> str:
+    def to_sous(self, output_file_path: str | None = None) -> str:
         lines: list[str] = []
         lines.extend(self._title())
         lines.extend(self._frontmatter())
