@@ -1,7 +1,9 @@
+from dataclasses import dataclass
+
 from sous.ingredient import Ingredient
 
 
+@dataclass
 class Prose:
-    def __init__(self, text: str, ingredients: list[Ingredient]) -> None:
-        self.text = text
-        self.ingredients = ingredients
+    text: str
+    ingredients: list[Ingredient]

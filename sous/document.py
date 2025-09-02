@@ -1,5 +1,3 @@
-import re
-
 from sous.attribute import Attribute
 from sous.comment import Comment
 from sous.header import Header
@@ -10,17 +8,6 @@ type Node = Header | Attribute | Comment | Ingredient | Prose
 
 
 class Document:
-    HEADER_RE = re.compile(r"^(?P<level>#+)\s+(?P<name>.+)$")
-    ATTRIBUTE_RE = re.compile(r"^@(?P<name>[\w-]+)\s+(?P<value>.+)$")
-    COMMENT_RE = re.compile(r"^%\s+(?P<comment>.+)$")
-    BLOCK_INGREDIENT_DEFINITION_RE = re.compile(
-        r"^{(?P<quantity>[^}]*)}(?P<descriptors>[^[]*)\[(?P<id>[^,\]]+)\](?P<preparation>.*)$"
-    )
-    INLINE_INGREDIENT_DEFINITION_RE = re.compile(
-        r"{(?P<quantity>[^}]*)}\[(?P<id>[^,\]]+)\]"
-    )
-    INGREDIENT_REFERENCE_RE = re.compile(r"\[(?P<ref>[^,\]]+)\](\((?P<id>[^)]+)\))?")
-
     def __init__(self, filepath: str) -> None:
         self.filepath = filepath
         self.paragraphs: list[list[Node]] = []
@@ -57,36 +44,20 @@ class Document:
         return "\n".join(result)
 
     def _parse_line(self, line: str) -> Node:
-        header = self.HEADER_RE.match(line)
+        header = Header.RE.match(line)
         if header:
             return Header(len(header.group("level")), header.group("name"))
 
-        attribute = self.ATTRIBUTE_RE.match(line)
+        attribute = Attribute.RE.match(line)
         if attribute:
             return Attribute(attribute.group("name"), attribute.group("value"))
 
-        comment = self.COMMENT_RE.match(line)
+        comment = Comment.RE.match(line)
         if comment:
             return Comment(comment.group("comment"))
 
-        block_ingredient_def = self.BLOCK_INGREDIENT_DEFINITION_RE.match(line)
+        block_ingredient_def = Ingredient.parse_block_definition(line)
         if block_ingredient_def:
-            return Ingredient(
-                id=block_ingredient_def.group("id"),
-                quantity=block_ingredient_def.group("quantity"),
-                descriptors=block_ingredient_def.group("descriptors"),
-                preparation=block_ingredient_def.group("preparation"),
-            )
+            return block_ingredient_def
 
-        inline_ingredients: list[Ingredient] = []
-        for inline_ingredient_def in self.INLINE_INGREDIENT_DEFINITION_RE.finditer(
-            line
-        ):
-            inline_ingredients.append(
-                Ingredient(
-                    id=inline_ingredient_def.group("id"),
-                    quantity=inline_ingredient_def.group("quantity"),
-                )
-            )
-
-        return Prose(line, inline_ingredients)
+        return Prose(line, Ingredient.parse_inline_definitions(line))

@@ -1,4 +1,10 @@
+import re
+from dataclasses import dataclass
+
+
+@dataclass
 class Attribute:
-    def __init__(self, name: str, value: str) -> None:
-        self.name = name
-        self.value = value
+    name: str
+    value: str
+
+    RE = re.compile(r"^@(?P<name>[\w-]+)\s+(?P<value>.+)$")
