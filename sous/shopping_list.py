@@ -82,9 +82,13 @@ class ShoppingList:
             multi_select_empty_ok=True,
             multi_select_keys=" x",
             show_multi_select_hint=True,
+            preselected_entries=list(range(len(ingredient_ids))),
         )
-        ingredient_id_indices = cast(tuple[int], ingredient_selection_menu.show())
+        ingredient_id_indices = ingredient_selection_menu.show()
+
+        if ingredient_id_indices is None:
+            return []
 
         return [
-            ingredients_by_id[ingredient_ids[index]] for index in ingredient_id_indices
+            ingredients_by_id[ingredient_ids[index]] for index in cast(tuple[int], ingredient_id_indices)
         ]
