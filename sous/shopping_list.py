@@ -90,5 +90,6 @@ class ShoppingList:
             return []
 
         return [
-            ingredients_by_id[ingredient_ids[index]] for index in cast(tuple[int], ingredient_id_indices)
+            ingredients_by_id[ingredient_ids[index]]
+            for index in cast(tuple[int], ingredient_id_indices)
         ]
