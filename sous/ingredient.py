@@ -6,7 +6,7 @@ from typing import Optional
 from sous.utils import Text
 
 
-@dataclass
+@dataclass(frozen=True)
 class Ingredient:
     id: str
     quantity: str | None = None
