@@ -113,7 +113,10 @@ def archive(dump_directory_path: str, output_directory_path: str) -> None:
         case_sensitive=False,
     ),
     default=ShoppingList.FORMAT_EXPANDED,
-    help="Format for items in the shopping list",
+    help=(
+        "Format of items in the shopping list "
+        f"(default: {ShoppingList.FORMAT_EXPANDED})"
+    ),
 )
 def shop(cookbook_paths: tuple[str], recipe_paths: tuple[str], format: str) -> None:
     """Build a shopping list from a collection of recipes"""
