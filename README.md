@@ -1,6 +1,6 @@
 # sous
 
-This is a tool that I've built to support my personal cooking workflow. It is inspired by the [cooklang](https://cooklang.org) ecosystem. 
+This is a tool that I've built to support my personal cooking workflow. It is inspired by the [cooklang](https://cooklang.org) ecosystem.
 
 ## .sous file format
 
@@ -21,7 +21,7 @@ Here's an example:
 
 {2} large [broccoli crowns], washed and trimmed
 {3 cloves} [garlic], minced
-{} extra virgin [olive oil]
+{} extra virgin [olive oil | avocado oil]
 {}[red pepper flakes]
 {1/2}[lemon], for juicing
 % Syntax for optional ingredients coming soon!
@@ -40,6 +40,7 @@ The snippet above demonstrates all of the supported language features:
 - Recipe title (`# Roasted broccoli`)
 - Metadata attributes (e.g. `@author Lérè Williams`)
 - Block ingredient definitions (e.g. `{2} large [broccoli crowns], washed and trimmed`)
+  - Alternative ingredients (e.g. `{} extra virgin [olive oil | avocado oil]`)
 - Inline ingredient definitions (e.g. `{}[black pepper]`)
 - Inline ingredient references (e.g. `[broccoli crowns]`)
 - Comments (e.g. `% Syntax for optional ingredients coming soon!`)

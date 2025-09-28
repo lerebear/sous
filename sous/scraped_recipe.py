@@ -1,12 +1,18 @@
 import json
+import logging
+from fractions import Fraction
 from functools import cached_property
 from typing import Any
 
 from ingredient_parser import parse_ingredient
+from ingredient_parser.dataclasses import IngredientAmount
 
 from sous.utils import Text
 
 SOUS_FORMAT_VERSION = 1
+INGREDIENT_CONFIDENCE_THRESHOLD = 0.75
+
+logger = logging.getLogger(__name__)
 
 
 class ScrapedRecipe:
@@ -71,27 +77,32 @@ class ScrapedRecipe:
     def _ingredients(self) -> list[str]:
         result: list[str] = []
 
-        for index, raw_ingredient in enumerate(self.recipe_json["ingredients"]):
-            parsed_ingredient = parse_ingredient(raw_ingredient)
+        for sentence in self.recipe_json["ingredients"]:
+            ingredient = parse_ingredient(sentence)
+            logger.info(ingredient)
 
-            name = (
-                parsed_ingredient.name[0].text
-                if parsed_ingredient.name
-                else f"{index + 1}"
-            )
-            prep = (
-                f"{parsed_ingredient.preparation.text}"
-                if parsed_ingredient.preparation
-                else None
-            )
+            if not ingredient.name:
+                raise RuntimeError(
+                    f"Failed to parse ingredient from sentence '{sentence}'"
+                )
+
+            for name in ingredient.name:
+                if name.confidence < INGREDIENT_CONFIDENCE_THRESHOLD:
+                    logger.warning(
+                        f"Confidence for ingredient '{name.text}' is too low: "
+                        f"{name.confidence} < {INGREDIENT_CONFIDENCE_THRESHOLD}"
+                    )
+
+            names = [name.text for name in ingredient.name]
+            prep = f"{ingredient.preparation.text}" if ingredient.preparation else None
             amount = (
-                f"{{{parsed_ingredient.amount[0].text}}}"
-                if parsed_ingredient.amount
+                f"{{{self._format_amount(ingredient.amount[0])}}}"
+                if ingredient.amount
                 else "{}"
             )
 
             components = [
-                f"{amount}[{name.lower()}]",
+                f"{amount}[{' | '.join([name.lower() for name in names])}]",
                 prep,
             ]
             result.append(Text.join(" ", components))
@@ -100,6 +111,37 @@ class ScrapedRecipe:
             result.append("")
 
         return result
+
+    @staticmethod
+    def _format_amount(amount: IngredientAmount) -> str:
+        qty_str = ScrapedRecipe._format_fraction(amount.quantity)
+
+        if amount.RANGE and amount.quantity != amount.quantity_max:
+            max_str = ScrapedRecipe._format_fraction(amount.quantity_max)
+            qty_str = f"{qty_str} - {max_str}"
+
+        unit_str = str(amount.unit) if amount.unit else ""
+        if unit_str:
+            effective_qty = amount.quantity_max if amount.RANGE else amount.quantity
+            if effective_qty > 1 and not unit_str.endswith("s"):
+                unit_str += "s"
+            qty_str = f"{qty_str} {unit_str}"
+
+        return qty_str
+
+    @staticmethod
+    def _format_fraction(value: Fraction | str) -> str:
+        if not isinstance(value, Fraction):
+            return str(value)
+
+        if value.denominator == 1:
+            return str(value.numerator)
+
+        whole = value.numerator // value.denominator
+        remainder = value - whole
+        if whole:
+            return f"{whole} {remainder}"
+        return str(value)
 
     def _steps(self) -> list[str]:
         return [
