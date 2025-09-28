@@ -1,5 +1,6 @@
 import os
 import pathlib
+import sys
 import time
 
 import click
@@ -120,6 +121,10 @@ def archive(dump_directory_path: str, output_directory_path: str) -> None:
 )
 def shop(cookbook_paths: tuple[str], recipe_paths: tuple[str], format: str) -> None:
     """Build a shopping list from a collection of recipes"""
+    if not len(cookbook_paths) and not len(recipe_paths):
+        click.echo("Please provide either the --cookbook flag or the --recipe flag.")
+        sys.exit(1)
+
     cookbook = Cookbook(cookbook_paths, recipe_paths)
     shopping_list = ShoppingList.build(cookbook, format)
 
