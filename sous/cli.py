@@ -94,7 +94,7 @@ def archive(dump_directory_path: str, output_directory_path: str) -> None:
     "--cookbook",
     "-c",
     "cookbook_paths",
-    default=[],
+    default=(),
     multiple=True,
     help="Path to a directory containing .sous files",
 )
@@ -102,7 +102,7 @@ def archive(dump_directory_path: str, output_directory_path: str) -> None:
     "--recipe",
     "-r",
     "recipe_paths",
-    default=[],
+    default=(),
     multiple=True,
     help="Path to a .sous file",
 )
