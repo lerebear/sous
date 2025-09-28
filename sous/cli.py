@@ -24,7 +24,7 @@ JSON_FILE_EXTENSION = ".json"
 
 @cli.command(name="import", context_settings=CONTEXT_SETTINGS)
 @click.argument("source")
-@click.argument("destination")
+@click.argument("destination", required=False)
 @click.option(
     "--cache-intermediate-json",
     "-c",
@@ -32,7 +32,9 @@ JSON_FILE_EXTENSION = ".json"
     default=False,
     help="Whether or not to cache the intermediate JSON representation of the recipe.",
 )
-def import_recipe(source: str, destination: str, cache_intermediate_json: bool) -> None:
+def import_recipe(
+    source: str, destination: str | None, cache_intermediate_json: bool
+) -> None:
     """
     Create a .sous file from the recipe at the given source URL
 
@@ -43,7 +45,7 @@ def import_recipe(source: str, destination: str, cache_intermediate_json: bool) 
 
     scraped_recipe = Downloader().download(source)
 
-    if cache_intermediate_json:
+    if destination and cache_intermediate_json:
         basename, extension = os.path.splitext(destination)
         scraped_recipe.save(basename + JSON_FILE_EXTENSION)
 
