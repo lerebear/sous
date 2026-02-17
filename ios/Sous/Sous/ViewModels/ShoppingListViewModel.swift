@@ -5,6 +5,7 @@ import SwiftUI
 final class ShoppingListViewModel {
     var items: [ShoppingListItem] = []
     var hideCheckedItems = false
+    var config: ShoppingListConfig?
     private(set) var sourceRecipeNames: [String] = []
 
     /// Ingredients contributed by each recipe (keyed by recipe name)
@@ -26,6 +27,33 @@ final class ShoppingListViewModel {
             return items.filter { !$0.isChecked }
         }
         return items
+    }
+
+    /// Items grouped by category when a config is active, or a single nil-keyed group otherwise.
+    var groupedItems: [(category: String?, items: [ShoppingListItem])] {
+        let visible = visibleItems
+
+        guard let config else {
+            return [(category: nil, items: visible)]
+        }
+
+        if visible.isEmpty { return [] }
+
+        var grouped: [(category: String?, items: [ShoppingListItem])] = []
+        var currentCategory = ""  // sentinel that won't match any real category
+
+        for item in visible {
+            let displayCategory = config.category(for: item.name) ?? "other"
+
+            if displayCategory != currentCategory || grouped.isEmpty {
+                grouped.append((category: displayCategory, items: [item]))
+                currentCategory = displayCategory
+            } else {
+                grouped[grouped.count - 1].items.append(item)
+            }
+        }
+
+        return grouped
     }
 
     /// Add ingredients from a recipe selection to the shopping list
@@ -60,6 +88,12 @@ final class ShoppingListViewModel {
         items.removeAll()
         sourceRecipeNames.removeAll()
         ingredientsByRecipe.removeAll()
+    }
+
+    /// Apply a config and re-sort items accordingly
+    func applyConfig(_ newConfig: ShoppingListConfig?) {
+        config = newConfig
+        rebuildItems()
     }
 
     /// Rebuild the items list from all tracked recipe ingredients
@@ -104,6 +138,15 @@ final class ShoppingListViewModel {
                 quantities: quantitiesByName[name] ?? [],
                 isChecked: false
             ))
+        }
+
+        // Sort by config if available, otherwise alphabetically
+        if let config {
+            newItems.sort { a, b in
+                config.sortKey(for: a.name) < config.sortKey(for: b.name)
+            }
+        } else {
+            newItems.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         }
 
         items = newItems

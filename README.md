@@ -46,3 +46,39 @@ The snippet above demonstrates all of the supported language features:
 - Comments (e.g. `% Syntax for optional ingredients coming soon!`)
 
 The format may be extended to support other uses in the future.
+
+## Shopping list configuration
+
+You can control how items in a shopping list are grouped and sorted by providing a TOML configuration file. Each table in the file defines a category, and items within each category are sorted alphabetically. Categories appear in the order they are defined in the file, and any items not listed in the config are grouped under "other" at the end.
+
+Here's an example:
+
+```toml
+[dairy]
+items = ["milk", "butter", "eggs"]
+
+[produce]
+items = [
+  "garlic",
+  "onion",
+  "broccoli crowns",
+  "cilantro",
+]
+
+[canned]
+items = ["olive oil", "beans", "chickpeas"]
+```
+
+### CLI
+
+Pass the config file to the `shop` command with the `--config` flag:
+
+```sh
+sous shop --cookbook ~/recipes --config ~/recipes/store-layout.toml
+```
+
+Any selected ingredients that don't appear in the config file will be reported as warnings on stderr.
+
+### iOS
+
+On the shopping list screen, tap the menu (ellipsis button) and select **Organize By** to choose from any `.toml` files found in the current cookbook directory. Sections are collapsible — tap a section header to collapse or expand it, or use **Collapse All** / **Expand All** from the menu.

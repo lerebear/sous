@@ -96,7 +96,7 @@ struct RecipeListView: View {
             }
             .sheet(isPresented: $showShoppingList) {
                 NavigationStack {
-                    ShoppingListView(shoppingList: shoppingList)
+                    ShoppingListView(shoppingList: shoppingList, cookbookURL: cookbook.cookbookURL)
                 }
             }
             .sheet(item: $selectedRecipe) { recipe in

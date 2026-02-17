@@ -8,6 +8,7 @@ import click
 from sous.cookbook import Cookbook
 from sous.downloader import Downloader
 from sous.shopping_list import ShoppingList
+from sous.shopping_list_config import ShoppingListConfig
 from sous.utils import Text
 
 CONTEXT_SETTINGS: dict[str, list[str]] = dict(help_option_names=["-h", "--help"])
@@ -121,16 +122,40 @@ def archive(dump_directory_path: str, output_directory_path: str) -> None:
         f"(default: {ShoppingList.FORMAT_EXPANDED})"
     ),
 )
-def shop(cookbook_paths: tuple[str], recipe_paths: tuple[str], format: str) -> None:
+@click.option(
+    "--config",
+    type=click.Path(exists=True),
+    default=None,
+    help="Path to a TOML file that defines shopping list item grouping and ordering",
+)
+def shop(
+    cookbook_paths: tuple[str],
+    recipe_paths: tuple[str],
+    format: str,
+    config: str | None,
+) -> None:
     """Build a shopping list from a collection of recipes"""
     if not len(cookbook_paths) and not len(recipe_paths):
         click.echo("Please provide either the --cookbook flag or the --recipe flag.")
         sys.exit(1)
 
     cookbook = Cookbook(cookbook_paths, recipe_paths)
-    shopping_list = ShoppingList.build(cookbook, format)
+    shopping_list_config = ShoppingListConfig(config) if config else None
+    shopping_list = ShoppingList.build(cookbook, format, shopping_list_config)
 
     if len(shopping_list.items):
+        if shopping_list_config:
+            uncategorized = sorted(
+                item.name
+                for item in shopping_list.items
+                if shopping_list_config.category_for(item.name) is None
+            )
+            for name in uncategorized:
+                click.echo(
+                    f"warning: '{name}' is not in the config file",
+                    err=True,
+                )
+
         click.echo(f"\n{str(shopping_list)}\n")
         click.echo("Happy shopping! 🛍️")
 

@@ -7,6 +7,7 @@ from sous.cookbook import Cookbook
 from sous.ingredient import Ingredient
 from sous.item import Item
 from sous.recipe import Recipe
+from sous.shopping_list_config import ShoppingListConfig
 
 
 class ShoppingList:
@@ -15,7 +16,12 @@ class ShoppingList:
     FORMATS = [FORMAT_COMPACT, FORMAT_EXPANDED]
 
     @classmethod
-    def build(cls, cookbook: Cookbook, format: str) -> "ShoppingList":
+    def build(
+        cls,
+        cookbook: Cookbook,
+        format: str,
+        config: ShoppingListConfig | None = None,
+    ) -> "ShoppingList":
         selected_ingredients: list[Ingredient] = []
 
         while True:
@@ -24,9 +30,14 @@ class ShoppingList:
                 break
             selected_ingredients.extend(cls.__select_ingredients(recipe))
 
-        return cls(selected_ingredients, format)
+        return cls(selected_ingredients, format, config)
 
-    def __init__(self, ingredients: list[Ingredient], format: str) -> None:
+    def __init__(
+        self,
+        ingredients: list[Ingredient],
+        format: str,
+        config: ShoppingListConfig | None = None,
+    ) -> None:
         if format not in self.FORMATS:
             raise ValueError(f"Invalid shopping list format: '{self.format}'")
 
@@ -39,12 +50,16 @@ class ShoppingList:
             [Item(ingredient.id, quantities[ingredient]) for ingredient in ingredients]
         )
         self.format = format
+        self.config = config
 
     def __str__(self) -> str:
         return "\n".join(self._format())
 
     def _format(self) -> list[str]:
         result: list[str] = []
+
+        if self.config:
+            return self._format_grouped()
 
         if self.format == self.FORMAT_COMPACT:
             for item in self.items:
@@ -58,6 +73,40 @@ class ShoppingList:
                 result.append(f"{item.name} {quantities}".strip())
 
         return sorted(result)
+
+    def _format_grouped(self) -> list[str]:
+        assert self.config is not None
+
+        sorted_items = sorted(
+            self.items, key=lambda item: self.config.sort_key(item.name)
+        )
+
+        result: list[str] = []
+        current_category: str | None = None
+
+        for item in sorted_items:
+            category = self.config.category_for(item.name)
+
+            if category != current_category:
+                if result:
+                    result.append("")
+                if category is not None:
+                    result.append(f"[{category}]")
+                else:
+                    result.append("[other]")
+                current_category = category
+
+            result.append(self._format_item(item))
+
+        return result
+
+    def _format_item(self, item: Item) -> str:
+        if self.format == self.FORMAT_COMPACT:
+            uses = f"({len(item.quantities)})" if len(item.quantities) > 1 else ""
+            return f"{item.name} {uses}".strip()
+
+        quantities = f"({', '.join(item.quantities)})" if item.quantities else ""
+        return f"{item.name} {quantities}".strip()
 
     @classmethod
     def __select_recipe(cls, cookbook: Cookbook) -> Recipe | None:
