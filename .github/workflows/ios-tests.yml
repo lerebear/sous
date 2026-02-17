@@ -1,0 +1,18 @@
+name: iOS Tests
+
+on: push
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - run: brew install xcodegen
+      - run: cd ios/Sous && xcodegen generate
+      - name: Run unit tests
+        run: |
+          cd ios/Sous
+          xcodebuild test \
+            -project Sous.xcodeproj -scheme Sous \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO
