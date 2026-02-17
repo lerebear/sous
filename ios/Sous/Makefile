@@ -10,6 +10,15 @@ project:
 # Simulator device name (override with SIM=... if needed)
 SIM ?= iPhone 14
 
+# Host cookbook directory to load in the simulator (e.g. COOKBOOK_PATH=~/Dropbox/cookbook).
+# Simulator apps run as macOS processes, so any host path works.
+COOKBOOK_PATH ?=
+
+LAUNCH_ARGS =
+ifneq ($(COOKBOOK_PATH),)
+LAUNCH_ARGS += --cookbook-path $(COOKBOOK_PATH)
+endif
+
 # Build for the iOS Simulator and launch the app
 .PHONY: build-sim
 build-sim: project
@@ -26,7 +35,8 @@ build-sim: project
 		-destination 'platform=iOS Simulator,name=$(SIM)' \
 		-showBuildSettings 2>/dev/null \
 		| grep -m1 BUILT_PRODUCTS_DIR | awk '{print $$3}')/Sous.app
-	xcrun simctl launch '$(SIM)' $(BUNDLE)
+	xcrun simctl terminate '$(SIM)' $(BUNDLE) 2>/dev/null || true
+	xcrun simctl launch '$(SIM)' $(BUNDLE) $(LAUNCH_ARGS)
 
 # Run unit tests on the simulator
 .PHONY: test

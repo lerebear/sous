@@ -31,6 +31,12 @@ This boots an iPhone 14 simulator by default. To use a different model:
 make build-sim SIM='iPhone 16'
 ```
 
+To load a cookbook directory from your Mac's file system (instead of using the in-app directory picker, which only sees the simulator's sandboxed storage):
+
+```sh
+make build-sim COOKBOOK_PATH=~/Dropbox/cookbook
+```
+
 Run unit tests:
 
 ```sh
